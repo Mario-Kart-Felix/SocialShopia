@@ -51,6 +51,18 @@ public class LoginActivity extends AppCompatActivity {
         //Firebase Init
         mAuth = FirebaseAuth.getInstance();
 
+        Intent intent = getIntent();
+        if (intent.getStringExtra("intentEmail")!=null)
+        {
+            String intentEmail = intent.getStringExtra("intentEmail");
+            inputEmail.setText(intentEmail);
+        }
+        if (intent.getStringExtra("intentPassword")!=null)
+        {
+            String intentPassword = intent.getStringExtra("intentPassword");
+            inputPassword.setText(intentPassword);
+        }
+
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

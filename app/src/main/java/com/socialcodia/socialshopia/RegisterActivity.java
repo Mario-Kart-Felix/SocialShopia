@@ -2,6 +2,7 @@ package com.socialcodia.socialshopia;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
@@ -30,6 +32,8 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText inputEmail, inputPassword, inputConfirmPassword;
     private Button btnRegister;
     private TextView tvLogin;
+
+    String email,password;
 
     //Firebase
     FirebaseAuth mAuth;
@@ -71,8 +75,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void validateData()
     {
-        String email = inputEmail.getText().toString().trim();
-        String password = inputPassword.getText().toString().trim();
+        email = inputEmail.getText().toString().trim();
+        password = inputPassword.getText().toString().trim();
         String confirmPassword = inputConfirmPassword.getText().toString().trim();
 
         if (email.isEmpty())
@@ -163,7 +167,7 @@ public class RegisterActivity extends AppCompatActivity {
         mRef.child(Constants.USERS).child(userId).setValue(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                sendToHome();
+                sendEmailVerification();
             }
         });
     }
@@ -179,6 +183,37 @@ public class RegisterActivity extends AppCompatActivity {
     {
         Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
         startActivity(intent);
+        finish();
+    }
+
+    private void sendEmailVerification()
+    {
+        if (mAuth.getCurrentUser()!=null)
+        {
+            mAuth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful())
+                    {
+                        Toast.makeText(RegisterActivity.this, "Email Verification Link has been sent to your email address", Toast.LENGTH_SHORT).show();
+                        sendToLoginWithEmailAndPassword();
+                    }
+                    else
+                    {
+                        Toast.makeText(RegisterActivity.this, "Failed to send email verification link", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+    }
+
+    private void sendToLoginWithEmailAndPassword()
+    {
+        Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
+        intent.putExtra("intentEmail",email);
+        intent.putExtra("intentPassword",password);
+        startActivity(intent);
+        finish();
     }
 
 }
