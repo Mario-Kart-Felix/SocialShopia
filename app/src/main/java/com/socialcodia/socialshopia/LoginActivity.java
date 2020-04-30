@@ -186,7 +186,7 @@ public class LoginActivity extends AppCompatActivity {
                     String name = dataSnapshot.child(Constants.USER_NAME).getValue(String.class);
                     if (name.isEmpty())
                     {
-
+                        sendToSecondStepUpdateProfile();
                     }
                     else
                     {
@@ -200,6 +200,13 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void sendToSecondStepUpdateProfile()
+    {
+        Intent intent = new Intent(getApplicationContext(),SecondStepUpdateProfileActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void sendToHome()

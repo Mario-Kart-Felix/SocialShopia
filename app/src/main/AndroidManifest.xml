@@ -9,7 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SecondStepUpdateProfileActivity"></activity>
+        <activity
+            android:name=".SecondStepUpdateProfileActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".RegisterActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
