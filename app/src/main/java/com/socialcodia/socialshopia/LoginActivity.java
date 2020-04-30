@@ -167,7 +167,7 @@ public class LoginActivity extends AppCompatActivity {
             boolean isEmailVerified = mAuth.getCurrentUser().isEmailVerified();
             if (isEmailVerified)
             {
-
+                checkLoginState();
             }
             else
             {
@@ -176,6 +176,31 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    private void checkLoginState()
+    {
+        if (mAuth.getCurrentUser()!=null)
+        {
+            mRef.child(Constants.USERS).child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    String name = dataSnapshot.child(Constants.USER_NAME).getValue(String.class);
+                    if (name.isEmpty())
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+    }
 
     private void sendToHome()
     {
