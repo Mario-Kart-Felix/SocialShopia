@@ -58,6 +58,19 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        tvRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendToRegister();
+            }
+        });
+
+    }
+
+    private void sendToRegister()
+    {
+        Intent intent = new Intent(getApplicationContext(),RegisterActivity.class);
+        startActivity(intent);
     }
 
     private void validateData()
