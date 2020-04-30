@@ -14,12 +14,16 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.socialcodia.socialshopia.storage.Constants;
+
+import java.util.HashMap;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -111,7 +115,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    private void doRegister(String email, String password)
+    private void doRegister(final String email, final String password)
     {
         btnRegister.setEnabled(false);
         mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -119,8 +123,8 @@ public class RegisterActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful())
                 {
-                    Toast.makeText(RegisterActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
-                   sendToHome();
+                    String userId = task.getResult().getUser().getUid();
+                    saveData(email,userId);
                 }
             }
         })
@@ -142,6 +146,28 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
+    private void saveData(String email, String userId)
+    {
+        HashMap<String,Object> map = new HashMap<>();
+        map.put(Constants.USER_EMAIL,email);
+        map.put(Constants.USER_ID,userId);
+        map.put(Constants.USER_IMAGE,"");
+        map.put(Constants.USER_MOBILE,"");
+        map.put(Constants.USER_NAME,"");
+        map.put(Constants.TIMESTAMP,String.valueOf(System.currentTimeMillis()));
+        map.put(Constants.CITY,"");
+        map.put(Constants.STATE,"");
+        map.put(Constants.COUNTRY,"");
+        map.put(Constants.LATITUDE,"");
+        map.put(Constants.LONGITUDE,"");
+        mRef.child(Constants.USERS).child(userId).setValue(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                sendToHome();
+            }
+        });
+    }
+
     private void sendToHome()
     {
         Intent intent = new Intent(getApplicationContext(),MainActivity.class);
@@ -154,4 +180,5 @@ public class RegisterActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
         startActivity(intent);
     }
+
 }
