@@ -13,7 +13,8 @@ public class Constants {
     LONGITUDE = "longitude",
     STATE = "state",
     TIMESTAMP ="timestamp",
-    USERS = "users"
+    USERS = "users",
+    ADDRESS = "address"
 
 
 

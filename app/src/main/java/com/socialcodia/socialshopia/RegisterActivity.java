@@ -164,6 +164,7 @@ public class RegisterActivity extends AppCompatActivity {
         map.put(Constants.COUNTRY,"");
         map.put(Constants.LATITUDE,"");
         map.put(Constants.LONGITUDE,"");
+        map.put(Constants.ADDRESS,"");
         mRef.child(Constants.USERS).child(userId).setValue(map).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
