@@ -184,9 +184,16 @@ public class LoginActivity extends AppCompatActivity {
             }
             else
             {
-                Toast.makeText(this, "Email not verified", Toast.LENGTH_SHORT).show();
+                sendToUnverifiedUser();
             }
         }
+    }
+
+    private void sendToUnverifiedUser()
+    {
+        Intent intent = new Intent(getApplicationContext(),UnverifiedUserActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void checkLoginState()
