@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -80,19 +81,24 @@ public class UnverifiedUserActivity extends AppCompatActivity {
     private void isEmailVerified()
     {
         btnSendVerificationEmail.setEnabled(false);
-        if (mAuth.getCurrentUser()!=null)
-        {
-            boolean isEmailVerified = mAuth.getCurrentUser().isEmailVerified();
-            if (isEmailVerified)
-            {
-                btnSendVerificationEmail.setEnabled(true);
-                Toast.makeText(this, "You email has been verified. Now you can login to your account", Toast.LENGTH_SHORT).show();
+        mAuth.getCurrentUser().reload().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                if (mAuth.getCurrentUser()!=null)
+                {
+                    boolean isEmailVerified = mAuth.getCurrentUser().isEmailVerified();
+                    if (isEmailVerified)
+                    {
+                        btnSendVerificationEmail.setEnabled(true);
+                        Toast.makeText(getApplicationContext(), "You email has been verified. Now you can login to your account", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        sendEmailVerification();
+                    }
+                }
             }
-            else
-            {
-                sendEmailVerification();
-            }
-        }
+        });
     }
 
     private void sendEmailVerification()
