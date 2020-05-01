@@ -92,6 +92,11 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        if (mAuth.getCurrentUser()!=null)
+        {
+            sendToHome();
+        }
+
     }
 
     private void sendToForgotPassword()
