@@ -3,8 +3,12 @@ package com.socialcodia.socialshopia;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -38,6 +42,7 @@ public class SecondStepUpdateProfileActivity extends AppCompatActivity {
 
     Uri filePath;
     String userId,name,mobileNumber;
+    String storagePermission[];
 
     //Firebase
     FirebaseAuth mAuth;
@@ -70,6 +75,9 @@ public class SecondStepUpdateProfileActivity extends AppCompatActivity {
             userId = mUser.getUid();
         }
 
+        // Init storage permission array
+        storagePermission = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
         btnUpdateProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,11 +88,49 @@ public class SecondStepUpdateProfileActivity extends AppCompatActivity {
         userProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chooseImage();
+                if (!checkStoragePermission())
+                {
+                    requestStoragePermission();
+                }
+                else
+                {
+                    chooseImage();
+                }
             }
         });
 
 
+    }
+
+    private boolean checkStoragePermission()
+    {
+        boolean result = ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == (PackageManager.PERMISSION_GRANTED);
+        return  result;
+    }
+
+    private void requestStoragePermission()
+    {
+        ActivityCompat.requestPermissions(this,storagePermission,100);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        if (requestCode==100 && grantResults.length>0)
+        {
+            boolean storageAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            if (storageAccepted)
+            {
+                chooseImage();
+            }
+            else
+            {
+                Toast.makeText(this, "Please Enable Storage Permission", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private void chooseImage()

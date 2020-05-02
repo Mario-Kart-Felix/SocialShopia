@@ -59,6 +59,7 @@ public class EditProfileActivity extends AppCompatActivity {
     String userId,name,mobile,state,city,country,address;
     Uri filePath;
     String storagePermission[];
+    String locationPermission[];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +87,7 @@ public class EditProfileActivity extends AppCompatActivity {
         mUser = mAuth.getCurrentUser();
 
         storagePermission = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        locationPermission = new String[] {Manifest.permission.ACCESS_FINE_LOCATION};
 
         if (mUser!=null)
         {
@@ -129,6 +131,8 @@ public class EditProfileActivity extends AppCompatActivity {
         getUserData();
     }
 
+
+
     private boolean checkStoragePermission()
     {
         boolean result = ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -159,6 +163,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         Toast.makeText(this, "Please Enable The Storage Permission", Toast.LENGTH_SHORT).show();
                     }
                 }
+                break;
         }
     }
 
