@@ -10,6 +10,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -39,14 +44,17 @@ import com.socialcodia.socialshopia.storage.Constants;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
-public class EditProfileActivity extends AppCompatActivity {
+public class EditProfileActivity extends AppCompatActivity implements LocationListener {
 
     Toolbar toolbar;
     private ImageButton btnBack, btnLocation;
     private ImageView userProfileImage;
     private EditText inputName, inputMobileNumber, inputCity, inputState, inputCountry, inputAddress;
     private Button btnUpdateProfile;
+
 
     //Firebase
     FirebaseAuth mAuth;
@@ -57,9 +65,12 @@ public class EditProfileActivity extends AppCompatActivity {
     FirebaseUser mUser;
 
     String userId,name,mobile,state,city,country,address;
+    double latitude;
+    double longitude;
     Uri filePath;
     String storagePermission[];
     String locationPermission[];
+    LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,13 +136,31 @@ public class EditProfileActivity extends AppCompatActivity {
         btnLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (checkLocationPermission())
+                {
+                    detectLocation();
+                }
+                else
+                {
+                    requestLocationPermission();
+                }
             }
         });
 
         getUserData();
     }
 
+    private boolean checkLocationPermission()
+    {
+        boolean result = ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)
+                == (PackageManager.PERMISSION_GRANTED);
+        return result;
+    }
 
+    private void requestLocationPermission()
+    {
+        ActivityCompat.requestPermissions(this, locationPermission,300);
+    }
 
     private boolean checkStoragePermission()
     {
@@ -146,7 +175,8 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode)
         {
@@ -164,7 +194,80 @@ public class EditProfileActivity extends AppCompatActivity {
                     }
                 }
                 break;
+            case 300:
+                if (grantResults.length>0)
+                {
+                    boolean locationAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    if (locationAccepted)
+                    {
+                        detectLocation();
+                    }
+                    else
+                    {
+                        Toast.makeText(this, "Location permission is required", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
         }
+    }
+
+
+    private void detectLocation()
+    {
+        Toast.makeText(this, "Please wait...", Toast.LENGTH_LONG).show();
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER,0,0,this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        //location detected
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+
+        findAddress();
+    }
+
+    private void findAddress()
+    {
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocation(latitude,longitude,1);
+            //Complete Address
+            String Address = addresses.get(0).getAddressLine(0);
+            String city = addresses.get(0).getLocality();
+            String state = addresses.get(0).getAdminArea();
+            String country = addresses.get(0).getCountryName();
+
+            //set Data to to EditText
+            inputAddress.setText(Address);
+            inputCity.setText(city);
+            inputState.setText(state);
+            inputCountry.setText(country);
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        //disabled gps
+        Toast.makeText(this, "Please Enable The GPS First.", Toast.LENGTH_SHORT).show();
     }
 
     private void chooseImage()
