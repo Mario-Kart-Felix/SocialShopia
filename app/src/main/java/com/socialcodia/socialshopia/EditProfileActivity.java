@@ -3,8 +3,12 @@ package com.socialcodia.socialshopia;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -52,6 +56,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
     String userId,name,mobile,state,city,country,address;
     Uri filePath;
+    String storagePermission[];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +83,8 @@ public class EditProfileActivity extends AppCompatActivity {
         mStorageRef = mStorage.getReference();
         mUser = mAuth.getCurrentUser();
 
+        storagePermission = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
         if (mUser!=null)
         {
             userId = mUser.getUid();
@@ -100,11 +107,57 @@ public class EditProfileActivity extends AppCompatActivity {
         userProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chooseImage();
+                if (!checkStoragePermission())
+                {
+                    requestStoragePermission();
+                }
+                else
+                {
+                    chooseImage();
+                }
+            }
+        });
+
+        btnLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
             }
         });
 
         getUserData();
+    }
+
+    private boolean checkStoragePermission()
+    {
+        boolean result = ContextCompat.checkSelfPermission(getApplicationContext(),Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == (PackageManager.PERMISSION_GRANTED);
+        return result;
+    }
+
+    private void requestStoragePermission()
+    {
+        ActivityCompat.requestPermissions(this,storagePermission,100);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode)
+        {
+            case 100:
+                if (grantResults.length>0)
+                {
+                    boolean storageAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    if (storageAccepted)
+                    {
+                        chooseImage();
+                    }
+                    else
+                    {
+                        Toast.makeText(this, "Please Enable The Storage Permission", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        }
     }
 
     private void chooseImage()
@@ -116,7 +169,8 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode==100 && resultCode==RESULT_OK && data!=null)

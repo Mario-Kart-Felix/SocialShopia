@@ -84,6 +84,7 @@ public class SecondStepUpdateProfileActivity extends AppCompatActivity {
             }
         });
 
+
     }
 
     private void chooseImage()
@@ -95,7 +96,8 @@ public class SecondStepUpdateProfileActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode==100 && resultCode==RESULT_OK && data!=null)
         {
